@@ -1,5 +1,6 @@
+import math
 import re
-
+from collections import defaultdict
 
 MAX_RED = 12
 MAX_GREEN = 13
@@ -116,6 +117,8 @@ Game 100: 10 blue, 2 red; 7 green, 20 blue, 9 red; 8 red, 6 green, 2 blue
 
 if __name__ == '__main__':
     id_sum = 0
+    power_sum = 0
+
     for line in INPUT.splitlines():
         if not len(line):
             continue
@@ -126,19 +129,21 @@ if __name__ == '__main__':
         line = line.split(":")[-1]
 
         valid = True
-        draws = line.split(";")
-        for draw in draws:
-            if not valid:
-                break
+        min_cubes = defaultdict(int)
 
-            pattern = re.compile(r"(\d+) (\w+)(,|$)")
+        draws = line.split(";")
+        pattern = re.compile(r"(\d+) (\w+)(,|$)")
+        for draw in draws:
             for match in pattern.finditer(draw):
                 groups = match.groups()
 
-                if int(groups[0]) > MAX_VALUES[groups[1]]:
+                if (cube_count := int(groups[0])) > MAX_VALUES[(cube_color := groups[1])]:
                     valid = False
-                    break
+                if min_cubes[cube_color] < cube_count:
+                    min_cubes[cube_color] = cube_count
 
+        power_sum += math.prod(min_cubes.values())
         if valid:
             id_sum += game_id
-    print(id_sum)
+    print(f"{id_sum=}")
+    print(f"{power_sum=}")
