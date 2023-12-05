@@ -1,4 +1,3 @@
-import functools
 import re
 from collections import defaultdict
 
@@ -147,14 +146,9 @@ INPUT = """311...672...34...391.....591......828.......................738......
 ..........56............822..................665............................563..383........................................................"""
 
 
-@functools.cache
-def convert_to_nparray(input_string: str):
+def create_adjacency_map(input_string):
     lines = input_string.splitlines()
-    return np.array(list(map(lambda line: [0 if c.isdecimal() or c == '.' else 1 for c in line], lines)))
-
-
-def calculate_adjacency_map(input_string):
-    data = convert_to_nparray(input_string)
+    data = np.array(list(map(lambda line: [0 if c.isdecimal() or c == '.' else 1 for c in line], lines)))
     kernel = np.array([[1, 1, 1], [1, -10, 1], [1, 1, 1]])
     return signal.convolve2d(data, kernel)
 
@@ -163,7 +157,7 @@ def main():
     parts_sum = 0
     gear_ratio_sum = 0
 
-    adjacency_map = calculate_adjacency_map(INPUT)
+    adjacency_map = create_adjacency_map(INPUT)
     gear_map = defaultdict(list)
 
     # print(adjacency_map[1:-1, 1:-1])
