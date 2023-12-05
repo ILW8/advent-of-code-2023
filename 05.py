@@ -242,13 +242,19 @@ humidity-to-location map:
 """
 
 
+def search_mapping(maps, map_name, source_val):
+    for key in maps[map_name].keys():
+        if source_val in key:
+            return source_val - key.start + maps[map_name][key]
+    return source_val
+
+
 def main():
     seeds = list(map(int, INPUT.splitlines()[0][6:].split()))
     maps = defaultdict(dict)
     current_map = None
 
     for line in INPUT.splitlines()[1:]:
-        print(line)
         if "map:" in line:
             current_map = line[:-5]
             continue
@@ -256,22 +262,19 @@ def main():
             continue
 
         dest, src, length = map(int, line.split())
-        for span_index in range(length):
-            maps[current_map][src + span_index] = dest + span_index
+        maps[current_map][range(src, src + length)] = dest
 
     min_loc = None
-    print(seeds)
     for seed in seeds:
-        soil = maps["seed-to-soil"].get(seed, seed)
-        fertilizer = maps["soil-to-fertilizer"].get(soil, soil)
-        water = maps["fertilizer-to-water"].get(fertilizer, fertilizer)
-        light = maps["water-to-light"].get(water, water)
-        temperature = maps["light-to-temperature"].get(light, light)
-        humidity = maps["temperature-to-humidity"].get(temperature, temperature)
-        location = maps["humidity-to-location"].get(humidity, humidity)
+        map_names = ["seed-to-soil", "soil-to-fertilizer", "fertilizer-to-water", "water-to-light",
+                     "light-to-temperature", "temperature-to-humidity", "humidity-to-location"]
 
-        if min_loc is None or location < min_loc:
-            min_loc = location
+        result = seed
+        for map_name in map_names:
+            result = search_mapping(maps, map_name, result)
+
+        if min_loc is None or result < min_loc:
+            min_loc = result
     print(min_loc)
 
 
