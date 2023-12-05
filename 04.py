@@ -225,7 +225,8 @@ Card 223: 98 82 47 14  2 48  1 50 18 62 | 67 78 16 58 35 87 93 44 77 13 74 34 32
 
 def main():
     points_total = 0
-    for line in INPUT.splitlines():
+    card_counts = [1] * len(INPUT.splitlines())
+    for line_index, line in enumerate(INPUT.splitlines()):
         winning, owned = line.split(":")[-1].split("|")
         winning = set(winning.split())
         owned = set(owned.split())
@@ -233,7 +234,11 @@ def main():
         if winning_owned := len(winning & owned):
             print(f"{line.split(':')[0]}: {winning_owned} (score: {2 ** (winning_owned - 1)})")
             points_total += 2 ** (winning_owned - 1)
+
+            for add_index in range(line_index + 1, line_index + 1 + winning_owned):
+                card_counts[add_index] += card_counts[line_index]
     print(f"{points_total=}")
+    print(f"{sum(card_counts)=}")
 
 
 if __name__ == '__main__':
