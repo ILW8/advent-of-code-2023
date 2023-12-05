@@ -1,5 +1,7 @@
 import functools
 import re
+from collections import defaultdict
+
 import numpy as np
 from scipy import signal
 
@@ -153,19 +155,36 @@ def convert_to_nparray(input_string: str):
 
 def calculate_adjacency_map(input_string):
     data = convert_to_nparray(input_string)
-    kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
+    kernel = np.array([[1, 1, 1], [1, -10, 1], [1, 1, 1]])
     return signal.convolve2d(data, kernel)
 
 
 def main():
-    adjacency_map = calculate_adjacency_map(INPUT)
-    pattern = re.compile(r"(\d+)")
     parts_sum = 0
+    gear_ratio_sum = 0
+
+    adjacency_map = calculate_adjacency_map(INPUT)
+    gear_map = defaultdict(list)
+
+    # print(adjacency_map[1:-1, 1:-1])
+    pattern = re.compile(r"(\d+)")
+
     for row_index, row in enumerate(INPUT.splitlines()):
         for match in pattern.finditer(row):
-            if adjacency_map[row_index + 1, 1 + match.span()[0]:1 + match.span()[1]].any():
+            if adjacency_map[1 + row_index, 1 + match.span()[0]:1 + match.span()[1]].any():
                 parts_sum += int(match.group())
-    print(parts_sum)
+                assert (adjacency_map[1 + row_index - 1:1 + row_index + 2,
+                        1 + match.span()[0] - 1: 1 + match.span()[1] + 1] < 0).any()
+                gear_position = tuple(np.argwhere(
+                    adjacency_map[row_index:row_index + 3, match.span()[0]: match.span()[1] + 2] < 0
+                ).flatten() + [row_index, 1 + match.span()[0] - 1])
+                gear_map[gear_position].append(int(match.group()))
+    for gear in gear_map.values():
+        if len(gear) == 2:
+            gear_ratio_sum += np.prod(gear)
+
+    print(f"{parts_sum=}")
+    print(f"{gear_ratio_sum=}")
 
 
 if __name__ == '__main__':
