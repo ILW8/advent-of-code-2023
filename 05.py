@@ -242,45 +242,6 @@ humidity-to-location map:
 """
 
 
-# def unoverlap_ranges(ranges: list):
-#
-
-# INPUT = """seeds: 79 14 55 13
-INPUT = """seeds: 79 14 96 6
-
-seed-to-soil map:
-50 98 2
-52 50 48
-
-soil-to-fertilizer map:
-0 15 37
-37 52 2
-39 0 15
-
-fertilizer-to-water map:
-49 53 8
-0 11 42
-42 0 7
-57 7 4
-
-water-to-light map:
-88 18 7
-18 25 70
-
-light-to-temperature map:
-45 77 23
-81 45 19
-68 64 13
-
-temperature-to-humidity map:
-0 69 1
-1 0 69
-
-humidity-to-location map:
-60 56 37
-56 93 4"""
-
-
 def get_overlap(range_left, range_right):
     return range(max(range_left.start, range_right.start), min(range_left.stop, range_right.stop))
 
@@ -293,16 +254,16 @@ def not_contained_in(test_range: range, other_ranges: set):
 
 
 def search_mappings(maps: dict, map_name: str, source_val: range):
-    # source_val - key.start + maps[map_name][key]
-
-    # key.start should be mapped to maps[map_name][key]
-
     # first split input range into different matching range maps
     input_split = set()
     for key in maps[map_name].keys():
         overlap = get_overlap(key, source_val)
         if len(overlap):
             input_split.add(overlap)
+
+    # if no overlap at all, return as is
+    if not len(input_split):
+        return {source_val}
 
     # perform mapping
     output_ranges = set()
@@ -314,6 +275,7 @@ def search_mappings(maps: dict, map_name: str, source_val: range):
             dest_start = input_mapped_range.start - key.start + maps[map_name][key]
             output_ranges.add(range(dest_start, dest_start + range_len))
 
+    # pass through the rest of the unmapped ranges
     remaining_input_split = set()
     for input_mapped_range in input_split:
         if len(get_overlap(source_val, input_mapped_range)):
@@ -325,47 +287,6 @@ def search_mappings(maps: dict, map_name: str, source_val: range):
                 remaining_input_split.add(new_right)
 
     return output_ranges.union(remaining_input_split)
-
-    # mappings = {source_val}
-    # for key in maps[map_name].keys():
-    #     overlap = get_overlap(key, source_val)
-    #     if len(overlap):
-    #         diff = overlap.stop - overlap.start
-    #         new_start = overlap.start - key.start + maps[map_name][key]
-    #         new_range = range(new_start, new_start + diff)
-    #
-    #         # split up existing ranges
-    #         new_mappings = set()
-    #         for existing in mappings:
-    #             if len(get_overlap(existing, new_range)):
-    #                 new_left = range(existing.start, new_range.start)
-    #                 if len(new_left):
-    #                     new_mappings.add(new_left)
-    #                 new_right = range(new_range.stop + 1, existing.stop)
-    #                 if len(new_right):
-    #                     new_mappings.add(new_right)
-    #
-    #                 continue
-    #             new_mappings.add(existing)
-    #
-    #         new_mappings.add(new_range)
-    #         mappings = new_mappings
-    # return list(mappings)
-
-    # # add remaining non-overlaps
-    # additional_mappings = [source_val]
-    # # last_high = source_val.start
-    # # for mapping in mappings:
-    # #     non_overlap = range(last_high, mapping.start)
-    # #     if len(non_overlap):
-    # #         additional_mappings.append(non_overlap)
-    # #         last_high = non_overlap.stop + 1
-    # for new_mapping in additional_mappings:
-    #     for mapping in mappings:
-    #         overlap = range(max(new_mapping.start, mapping.start), min(new_mapping.stop, mapping.stop))
-    #         if len(overlap):
-    #             new_left = range()
-    #             new_right = range()
 
 
 def main():
@@ -390,29 +311,15 @@ def main():
                      "light-to-temperature", "temperature-to-humidity", "humidity-to-location"]
 
         results = [range(pair[0], pair[0] + pair[1])]
-        # for map_name in map_names:
-        #     new_results = []
-        #     for interval in results:
-        #         new_results.extend(search_mappings(maps, map_name, interval))
-        #     results = new_results
-
-        # new_results = []
-        # for seed_range in results:
-        #     res_buf = [seed_range]
-        #     for map_name in map_names:
-        #         new_res = []
-        #         for interval in res_buf:
-        #             new_res.extend(search_mappings(maps, map_name, interval))
-        #         res_buf = new_res
-        #     print(res_buf)
-        print(results[0], maps["seed-to-soil"], search_mappings(maps, "seed-to-soil", results[0]))
+        for map_name in map_names:
+            new_results = []
+            for interval in results:
+                new_results.extend(search_mappings(maps, map_name, interval))
+            results = new_results
 
         for r in results:
             if min_loc is None or r.start < min_loc:
                 min_loc = r.start
-
-        # if min_loc is None or result < min_loc:
-        #     min_loc = result
     print(min_loc)
 
 
