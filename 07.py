@@ -49,9 +49,9 @@ def rank_hands_part2(left: str, right: str):
 
     # handle 1) and 2)
     if max_left in (2, 3):
-        if -len(Counter(cards_count_left.keys())) < -len(Counter(cards_count_right.keys())):
+        if -len(cards_count_left) < -len(cards_count_right):
             return -2
-        if -len(Counter(cards_count_left.keys())) > -len(Counter(cards_count_right.keys())):
+        if -len(cards_count_left) > -len(cards_count_right):
             return 2
 
     # handle 3) same kind -> let tiebreaker_joker handle it
