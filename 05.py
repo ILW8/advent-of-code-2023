@@ -26,14 +26,16 @@ def search_mappings(maps: dict, map_name: str, source_val: range):
         return {source_val}
 
     # perform mapping
-    output_ranges = set()
-    for input_mapped_range in input_split:
-        for key in maps[map_name].keys():
-            if not len(get_overlap(input_mapped_range, key)):
+    def follow_mapping(range_to_map):
+        mapped_ranges = set()
+        for mapping in maps[map_name].keys():
+            if not len(get_overlap(range_to_map, mapping)):
                 continue
-            range_len = input_mapped_range.stop - input_mapped_range.start
-            dest_start = input_mapped_range.start - key.start + maps[map_name][key]
-            output_ranges.add(range(dest_start, dest_start + range_len))
+            range_len = range_to_map.stop - range_to_map.start
+            dest_start = range_to_map.start - mapping.start + maps[map_name][mapping]
+            mapped_ranges.add(range(dest_start, dest_start + range_len))
+        return mapped_ranges
+    output_ranges = set().union(*map(follow_mapping, input_split))
 
     # pass through the rest of the unmapped ranges
     remaining_input_split = set()
