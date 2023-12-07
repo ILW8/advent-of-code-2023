@@ -23,5 +23,12 @@ def main(input_lines: List[str]):
     print(prod_races(races))
 
 
+def part2(input_lines: List[str]):
+    time = int(''.join(input_lines[0].split()[1:]))
+    distance = int(''.join(input_lines[1].split()[1:]))
+    print(prod_races([(time, distance)]))
+
+
 if __name__ == '__main__':
     main(read_input_from_file("06.txt"))
+    part2(read_input_from_file("06.txt"))
