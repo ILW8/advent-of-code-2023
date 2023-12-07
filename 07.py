@@ -3,40 +3,25 @@ from typing import List
 from input_reader import read_input_from_file
 from collections import Counter
 
-
 CARD_VALUE = {k: v for v, k in enumerate("23456789TJQKA")}
 CARD_VALUE_PART2 = {k: v for v, k in enumerate("J23456789TQKA")}
 JOKER_POTENTIALS = "23456789TQKA"
 
 
-def find_strongest_hand(hand: str):
+def find_strongest_hand(hand):
     """
-    Finds strongest hand when Joker can be any other card
-    :param hand:
-    :return: best hand possible
+    Find a new hand where Js are replaced with any other card such that the new hand becomes the strongest type of hand
+    possible. tiebreaker_joker can be used with the result of this for complete comparison between two hands.
     """
-    best_so_far = hand
-    if hand == "JJJJJ":  # shortcut otherwise this would take too long
+    if hand == "JJJJJ":
         return hand
 
-    if "J" in hand:
-        c = Counter(hand)  # shortcut otherwise this would also take too long
-        if c["J"] == 4:
-            for key, value in c.items():
-                if key != "J":
-                    return key * 5
+    card_counts = Counter(hand)
+    del card_counts["J"]
+    max_card, max_count = card_counts.most_common(1)[0]
+    new_hand = [card if card != "J" else max_card for card in hand]  # Replace Js with the next highest occurrence card
 
-        for index in range(5):
-            if hand[index] != "J":
-                continue
-            for card in JOKER_POTENTIALS:
-                new_hand = hand[:index] + card + hand[index + 1:]
-                if "J" in new_hand:
-                    new_hand = find_strongest_hand(new_hand)
-                if rank_hands_part2(new_hand, best_so_far) > 0:
-                    # print(f"{hand}: {new_hand} <-- STRONGER")
-                    best_so_far = new_hand
-    return best_so_far
+    return new_hand
 
 
 def tiebreaker_joker(left: str, right: str):
