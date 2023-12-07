@@ -2,10 +2,7 @@ from typing import List
 from input_reader import read_input_from_file
 
 
-def main(input_lines: List[str]):
-    # list of (time, distance)-tuples
-    races = zip(map(int, input_lines[0].split()[1:]), map(int, input_lines[1].split()[1:]))
-
+def prod_races(races: list):
     solutions_product = 1
     for time, distance in races:
         race_solutions = 0
@@ -16,7 +13,14 @@ def main(input_lines: List[str]):
                 race_solutions += 1
 
         solutions_product *= race_solutions
-    print(solutions_product)
+    return solutions_product
+
+
+def main(input_lines: List[str]):
+    # list of (time, distance)-tuples
+    races = zip(map(int, input_lines[0].split()[1:]), map(int, input_lines[1].split()[1:]))
+
+    print(prod_races(races))
 
 
 if __name__ == '__main__':
