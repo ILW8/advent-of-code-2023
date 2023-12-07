@@ -2,17 +2,32 @@ from typing import List
 from input_reader import read_input_from_file
 
 
+def binary_search_bound(time, distance, lower_bound=True):
+    low = 0
+    high = time
+    while low <= high:
+        mid = (low + high) // 2
+        if (time - mid) * mid >= distance:
+            if lower_bound:
+                high = mid - 1
+            else:
+                low = mid + 1
+        else:
+            if lower_bound:
+                low = mid + 1
+            else:
+                high = mid - 1
+    return low if lower_bound else high + 1
+
+
+def find_race_solutions(time, distance):
+    return binary_search_bound(time, distance, lower_bound=False) - binary_search_bound(time, distance)
+
+
 def prod_races(races: list):
     solutions_product = 1
     for time, distance in races:
-        race_solutions = 0
-        # going to use a naive approach instead of using sympy
-        for time_held in range(time + 1):
-            total_distance = (time - time_held) * time_held
-            if total_distance > distance:
-                race_solutions += 1
-
-        solutions_product *= race_solutions
+        solutions_product *= find_race_solutions(time, distance)
     return solutions_product
 
 
