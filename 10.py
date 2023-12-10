@@ -32,9 +32,22 @@ def traverse_pipes(position, connectivity_map, distance_map):
         current_distance = distance_map[current_y][current_x]
 
         for direction in [UP, DOWN, LEFT, RIGHT]:
-            new_x, new_y = current[0] + direction[0], current[1] + direction[1]
-            neighbour = (new_x, new_y)
+            current_connectivity = connectivity_map[current_y][current_x]
+            should_skip = True
 
+            for connectivity in current_connectivity:
+                if (connectivity[0] == direction[0]) and (connectivity[1] == -direction[1]):
+                    should_skip = False
+                    break
+
+            if should_skip:
+                continue
+
+            new_x, new_y = current[0] + direction[0], current[1] + direction[1]
+            if new_x < 0 or new_y < 0:
+                continue
+
+            neighbour = (new_x, new_y)
             if neighbour in visited:
                 continue
 
@@ -57,6 +70,7 @@ def traverse_pipes(position, connectivity_map, distance_map):
             visited.add(neighbour)
             queue.append(neighbour)
             distance_map[new_y][new_x] = current_distance + 1
+    print()
 
 
 def part1(input_lines: List[str]):
@@ -73,12 +87,13 @@ def part1(input_lines: List[str]):
                 continue
 
             connectivity_map[row_index][column_index] = connected_sides
-
+    connectivity_map[start_position[1]][start_position[0]] = [UP, DOWN, LEFT, RIGHT]
     traverse_pipes(start_position, connectivity_map, distance_map)
     print(np.max(np.array(distance_map)))
+    return np.array(distance_map)
 
 
-def pretty_print_pipes(input_lines: List[str]):
+def pretty_print_pipes(input_lines: List[str], use_colors=False):
     for idx, line in enumerate(input_lines):
         line = line.replace("7", "┓")
         line = line.replace("L", "┗")
@@ -89,14 +104,27 @@ def pretty_print_pipes(input_lines: List[str]):
         line = line.replace(".", " ")
         # print(colored(line, "white", "on_grey", force_color=True))
         # print(colored(line, "white", "on_dark_grey", force_color=True))
-        grey = idx % 2 == 1
-        for character in line:
-            if grey:
-                print(colored(character, "white", "on_dark_grey", force_color=True), end="")
-            else:
-                print(colored(character, "white", "on_black", force_color=True), end="")
-            grey = not grey
-        print()
+        if use_colors:
+            grey = idx % 2 == 1
+            for character in line:
+                if grey:
+                    print(colored(character, "white", "on_dark_grey", force_color=True), end="")
+                else:
+                    print(colored(character, "white", "on_black", force_color=True), end="")
+                grey = not grey
+            continue
+
+        print(line)
+
+
+def filter_main_loop(input_lines: List[str], distance_map: np.array):
+    main_loop_bitmap = loop_distance_map >= 0
+    filtered_input = []
+    for row, line in enumerate(puzzle_input):
+        a = np.array(list(line))
+        a[~main_loop_bitmap[row]] = '.'
+        filtered_input.append(''.join(a))
+    return filtered_input
 
 
 def part2(input_lines: List[str]):
@@ -106,6 +134,7 @@ def part2(input_lines: List[str]):
 if __name__ == '__main__':
     use_sample = False
     puzzle_input = read_input_from_file("10_sample.txt" if use_sample else "10.txt")
-    pretty_print_pipes(puzzle_input)
-    part1(puzzle_input)
+    loop_distance_map = part1(puzzle_input)
     part2(puzzle_input)
+
+    pretty_print_pipes(filter_main_loop(puzzle_input, loop_distance_map))
