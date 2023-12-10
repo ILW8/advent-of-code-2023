@@ -1,9 +1,5 @@
 from typing import List
-
-from line_profiler_pycharm import profile
-
 from input_reader import read_input_from_file
-
 import numpy as np
 
 
@@ -11,19 +7,6 @@ UP = (0, -1)
 DOWN = (0, 1)
 LEFT = (-1, 0)
 RIGHT = (1, 0)
-DIRECTIONS = {
-    'UP': np.array(UP),
-    'DOWN': np.array(DOWN),
-    'LEFT': np.array(LEFT),
-    'RIGHT': np.array(RIGHT)
-}
-#
-DIRECTIONS = {
-    'UP': UP,
-    'DOWN': DOWN,
-    'LEFT': LEFT,
-    'RIGHT': RIGHT
-}
 
 
 PIPE_TYPES = {
@@ -37,7 +20,6 @@ PIPE_TYPES = {
 }
 
 
-@profile
 def traverse_pipes(position, connectivity_map, distance_map):
     distance_map[position[1]][position[0]] = 0
     visited = {position}
@@ -76,7 +58,6 @@ def traverse_pipes(position, connectivity_map, distance_map):
             distance_map[new_y][new_x] = current_distance + 1
 
 
-@profile
 def part1(input_lines: List[str]):
     start_position = None
     connectivity_map = [[[]] * len(input_lines[0]) for _ in range(len(input_lines))]
@@ -92,10 +73,7 @@ def part1(input_lines: List[str]):
 
             connectivity_map[row_index][column_index] = connected_sides
 
-    # distance_map[start_position[1]][start_position[0]] = 0
-
     traverse_pipes(start_position, connectivity_map, distance_map)
-
     print(np.max(np.array(distance_map)))
 
 
