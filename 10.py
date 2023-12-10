@@ -154,6 +154,7 @@ def filter_main_loop(input_lines: List[str], distance_map: np.array):
 
 def part2(input_lines: List[str]):
     bigger_map = np.zeros((len(input_lines[0]) * 3, len(input_lines) * 3))
+    inner_outer_map = np.zeros((len(input_lines[0]), len(input_lines)))
 
     for row_index, row in enumerate(input_lines):
         for col_index, col in enumerate(row):
@@ -188,6 +189,9 @@ def part2(input_lines: List[str]):
     for row_index, row in enumerate(input_lines):
         for col_index, col in enumerate(row):
             inner_count += bigger_map[1 + row_index * 3, 1 + col_index * 3] == -5
+            inner_outer_map[row_index][col_index] = bigger_map[1 + row_index * 3, 1 + col_index * 3]
+    # plt.imshow(inner_outer_map, interpolation='nearest')
+    # plt.show()
     print(inner_count)
 
 
