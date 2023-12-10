@@ -1,6 +1,7 @@
 from typing import List
 from input_reader import read_input_from_file
 import numpy as np
+from termcolor import colored
 
 
 UP = (0, -1)
@@ -77,6 +78,27 @@ def part1(input_lines: List[str]):
     print(np.max(np.array(distance_map)))
 
 
+def pretty_print_pipes(input_lines: List[str]):
+    for idx, line in enumerate(input_lines):
+        line = line.replace("7", "┓")
+        line = line.replace("L", "┗")
+        line = line.replace("J", "┛")
+        line = line.replace("F", "┏")
+        line = line.replace("-", "━")
+        line = line.replace("|", "┃")
+        line = line.replace(".", " ")
+        # print(colored(line, "white", "on_grey", force_color=True))
+        # print(colored(line, "white", "on_dark_grey", force_color=True))
+        grey = idx % 2 == 1
+        for character in line:
+            if grey:
+                print(colored(character, "white", "on_dark_grey", force_color=True), end="")
+            else:
+                print(colored(character, "white", "on_black", force_color=True), end="")
+            grey = not grey
+        print()
+
+
 def part2(input_lines: List[str]):
     pass
 
@@ -84,5 +106,6 @@ def part2(input_lines: List[str]):
 if __name__ == '__main__':
     use_sample = False
     puzzle_input = read_input_from_file("10_sample.txt" if use_sample else "10.txt")
+    pretty_print_pipes(puzzle_input)
     part1(puzzle_input)
     part2(puzzle_input)
